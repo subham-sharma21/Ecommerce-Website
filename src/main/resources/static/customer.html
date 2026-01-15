@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EchoCart - Customer Dashboard</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    
+    <style>
+        .order-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            color: #6c757d;
+            transition: all 0.3s ease;
+        }
+        
+        .timeline-item.active {
+            color: #198754;
+            font-weight: 500;
+        }
+        
+        .timeline-item i {
+            font-size: 1.2em;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .timeline-item.active i {
+            color: #198754;
+        }
+        
+        .order-timeline .timeline-item:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: 10px;
+            margin-top: 25px;
+            width: 2px;
+            height: 20px;
+            background-color: #dee2e6;
+        }
+        
+        .order-timeline .timeline-item.active:not(:last-child)::after {
+            background-color: #198754;
+        }
+        
+        .timeline-item {
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header / Sticky Navbar -->
+    <header class="sticky-top">
+        <nav class="navbar navbar-expand-lg">
+            <div class="container">
+                <a class="navbar-brand" href="index.html">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle; margin-right:8px;">
+                        <rect width="24" height="24" fill="none"/>
+                        <path d="M7 18c-1.104 0-2 .896-2 2s.896 2 2 2 2-.896 2-2-.896-2-2-2zm10 0c-1.104 0-2 .896-2 2s.896 2 2 2 2-.896 2-2-.896-2-2-2zM7.16 15l.94-2h7.8l.94 2H7.16zM6.16 13l-1.1-2.32A1 1 0 0 1 6 9h12a1 1 0 0 1 .94 1.32L17.84 13H6.16zM6 7V5a1 1 0 0 1 1-1h2V2h6v2h2a1 1 0 0 1 1 1v2H6z" fill="#222"/>
+                    </svg>
+                    EchoCart
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item"><a class="nav-link active" href="#home">Home</a></li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                Categories
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#electronics">Electronics</a></li>
+                                <li><a class="dropdown-item" href="#apparel">Fashion</a></li>
+                                <li><a class="dropdown-item" href="#home-kitchen">Home & Kitchen</a></li>
+                                <li><a class="dropdown-item" href="#books">Books</a></li>
+                                <li><a class="dropdown-item" href="#sports">Sports & Fitness</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <form class="d-flex me-3" role="search">
+                        <input id="search-bar" class="form-control me-2" type="search" placeholder="Search for products..." aria-label="Search">
+                    </form>
+                    <ul class="navbar-nav mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link position-relative" href="#" id="cart-icon" data-bs-toggle="modal" data-bs-target="#cartModal">
+                                <i class="bi bi-cart-fill me-1"></i>Cart
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="cart-badge" style="display: none;">
+                                    0
+                                </span>
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-person-circle me-1"></i> <span id="customer-username">Customer</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="#" onclick="showProfile()">Profile</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="showOrders()">My Orders</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#" id="logout-button" onclick="logout(event)">Logout</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Welcome Section -->
+        <section class="py-4 bg-light">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h2>Welcome back, <span id="welcome-username">Customer</span>!</h2>
+                        <p class="text-muted mb-0">Discover amazing products and great deals</p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <button class="btn btn-outline-primary" onclick="showOrders()">
+                            <i class="bi bi-box-seam me-1"></i>View Orders
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Product Sections -->
+        <section id="electronics" class="product-section">
+            <div class="container">
+                <div class="text-center mb-5">
+                    <h2>Electronics</h2>
+                    <p class="lead text-muted">The latest and greatest in modern technology</p>
+                </div>
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-3" id="product-list-electronics">
+                    <!-- Products will be loaded from backend -->
+                </div>
+            </div>
+        </section>
+
+        <section id="apparel" class="product-section" style="background-color: var(--secondary-bg);">
+            <div class="container">
+                <div class="text-center mb-4">
+                    <h2>Fashion</h2>
+                    <p class="lead text-muted">Trendy styles for every occasion</p>
+                </div>
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-3" id="product-list-apparel">
+                    <!-- Products will be loaded from backend -->
+                </div>
+            </div>
+        </section>
+
+        <section id="home-kitchen" class="product-section">
+            <div class="container">
+                <div class="text-center mb-4">
+                    <h2>Home & Kitchen</h2>
+                    <p class="lead text-muted">Essential items for your home</p>
+                </div>
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-3" id="home-kitchen-products">
+                    <!-- Products will be loaded from backend -->
+                </div>
+            </div>
+        </section>
+
+        <section id="books" class="product-section" style="background-color: var(--secondary-bg);">
+            <div class="container">
+                <div class="text-center mb-4">
+                    <h2>Books</h2>
+                    <p class="lead text-muted">Knowledge and entertainment for all</p>
+                </div>
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-3" id="books-products">
+                    <!-- Products will be loaded from backend -->
+                </div>
+            </div>
+        </section>
+
+        <section id="sports" class="product-section">
+            <div class="container">
+                <div class="text-center mb-4">
+                    <h2>Sports & Fitness</h2>
+                    <p class="lead text-muted">Stay active and healthy</p>
+                </div>
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-3" id="sports-products">
+                    <!-- Products will be loaded from backend -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="modern-footer">
+        <div class="container">
+            <div class="row gy-4">
+                <div class="col-lg-4 col-md-6">
+                    <div class="footer-brand">
+                        <h4 class="mb-3">EchoCart</h4>
+                        <p class="footer-desc">Your trusted partner for premium products and exceptional shopping experience.</p>
+                        <div class="social-links">
+                            <a href="#" class="social-link"><i class="bi bi-facebook"></i></a>
+                            <a href="#" class="social-link"><i class="bi bi-twitter-x"></i></a>
+                            <a href="#" class="social-link"><i class="bi bi-instagram"></i></a>
+                            <a href="#" class="social-link"><i class="bi bi-linkedin"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6">
+                    <h6 class="footer-title">Shop</h6>
+                    <ul class="footer-links">
+                        <li><a href="#electronics">Electronics</a></li>
+                        <li><a href="#apparel">Fashion</a></li>
+                        <li><a href="#home-kitchen">Home & Kitchen</a></li>
+                        <li><a href="#books">Books</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6">
+                    <h6 class="footer-title">Support</h6>
+                    <ul class="footer-links">
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Shipping Info</a></li>
+                        <li><a href="#">Returns</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4 col-md-6">
+                    <h6 class="footer-title">Stay Updated</h6>
+                    <p class="footer-desc mb-3">Subscribe to get special offers and updates.</p>
+                    <div class="newsletter">
+                        <input type="email" class="newsletter-input" placeholder="Enter your email">
+                        <button class="newsletter-btn"><i class="bi bi-arrow-right"></i></button>
+                    </div>
+                </div>
+            </div>
+            <hr class="footer-divider">
+            <div class="footer-bottom">
+                <p>&copy; 2024 EchoCart. All rights reserved.</p>
+                <div class="footer-bottom-links">
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Cart Modal -->
+    <div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cartModalLabel">
+                        <i class="bi bi-cart-fill me-2"></i>Shopping Cart
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="cart-alerts"></div>
+                    <div id="cart-empty" class="text-center py-5" style="display: none;">
+                        <i class="bi bi-cart-x display-1 text-muted mb-3"></i>
+                        <h4 class="text-muted">Your cart is empty</h4>
+                        <p class="text-muted">Add some products to get started!</p>
+                    </div>
+                    <div id="cart-items">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Code</th>
+                                        <th>Qty</th>
+                                        <th>Price</th>
+                                        <th>Subtotal</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="cart-table-body">
+                                    <!-- Cart items will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" id="cart-footer">
+                    <div class="w-100">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="mb-0">Total: <span id="cart-total" class="text-success">₹0.00</span></h5>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-outline-danger" id="clear-cart-btn">
+                                <i class="bi bi-trash me-1"></i>Clear Cart
+                            </button>
+                            <button type="button" class="btn btn-custom flex-fill" id="checkout-btn">
+                                <i class="bi bi-credit-card me-1"></i>Checkout
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Orders Modal -->
+    <div class="modal fade" id="ordersModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-box-seam me-2"></i>My Orders
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="orders-loading" class="text-center py-4" style="display: none;">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading orders...</span>
+                        </div>
+                        <p class="mt-2 text-muted">Loading your orders...</p>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th><i class="bi bi-hash me-1"></i>Order ID</th>
+                                    <th><i class="bi bi-calendar me-1"></i>Date</th>
+                                    <th><i class="bi bi-currency-rupee me-1"></i>Total</th>
+                                    <th><i class="bi bi-info-circle me-1"></i>Status</th>
+                                    <!-- <th><i class="bi bi-gear me-1"></i>Actions</th> -->
+                                </tr>
+                            </thead>
+                            <tbody id="orders-table-body">
+                                <!-- Orders will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <div class="d-flex justify-content-between w-100 align-items-center">
+                        <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Orders are updated in real-time
+                        </small>
+                        <div>
+                            <button type="button" class="btn btn-outline-secondary me-2" onclick="loadOrders()">
+                                <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+                            </button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Details Modal -->
+    <div class="modal fade" id="orderDetailsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-receipt me-2"></i>Order Details
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="order-details-content">
+                        <!-- Order details will be loaded here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div class="modal fade" id="profileModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">My Profile</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="profile-form">
+                        <div class="mb-3">
+                            <label for="profileUsername" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="profileUsername" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="profileEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="profileEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="profilePassword" class="form-label">New Password (optional)</label>
+                            <input type="password" class="form-control" id="profilePassword">
+                            <div class="form-text">Leave blank to keep current password</div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" form="profile-form" class="btn btn-primary">Update Profile</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Alerts -->
+    <div class="position-fixed" style="bottom: 20px; right: 20px; z-index: 1060; max-width: 300px;">
+        <div id="main-cart-alerts"></div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom JavaScript -->
+    <script src="js/main.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/product.js"></script>
+    
+    <script>
+        // Customer Dashboard JavaScript
+        // API_BASE is already defined in main.js
+
+        // Check if user is customer
+        document.addEventListener('DOMContentLoaded', function() {
+            const userRole = localStorage.getItem('userMode');
+            const userId = localStorage.getItem('userId');
+            const username = localStorage.getItem('username');
+
+            if (userRole !== 'customer' || !userId) {
+                alert('Access denied. Customer login required.');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Set customer username
+            document.getElementById('customer-username').textContent = username || 'Customer';
+            document.getElementById('welcome-username').textContent = username || 'Customer';
+
+            // Setup logout
+            const logoutButton = document.getElementById('logout-button');
+            if (logoutButton) {
+                logoutButton.addEventListener('click', logout);
+            }
+
+            // Setup profile form
+            document.getElementById('profile-form').addEventListener('submit', updateProfile);
+
+            // Load customer profile
+            loadProfile();
+
+            // Setup search functionality
+            setupSearch();
+        });
+
+        // Setup search functionality
+        function setupSearch() {
+            const searchBar = document.getElementById('search-bar');
+            if (searchBar) {
+                searchBar.addEventListener('input', (e) => {
+                    const searchTerm = e.target.value.toLowerCase().trim();
+                    document.querySelectorAll('.product-item').forEach(item => {
+                        const title = item.querySelector('.card-title')?.textContent.toLowerCase() || '';
+                        const description = item.querySelector('.card-text')?.textContent.toLowerCase() || '';
+                        item.style.display = !searchTerm || title.includes(searchTerm) || description.includes(searchTerm) ? 'block' : 'none';
+                    });
+                });
+            }
+        }
+
+        // Load customer profile
+        async function loadProfile() {
+            const userId = localStorage.getItem('userId');
+            
+            try {
+                const response = await fetch(`${API_BASE}/users/${userId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const user = data.user;
+                    document.getElementById('profileUsername').value = user.username;
+                    document.getElementById('profileEmail').value = user.email;
+                }
+            } catch (error) {
+                console.error('Error loading profile:', error);
+            }
+        }
+
+        // Update profile
+        async function updateProfile(e) {
+            e.preventDefault();
+            
+            const userId = localStorage.getItem('userId');
+            const updateData = {
+                username: document.getElementById('profileUsername').value.trim(),
+                email: document.getElementById('profileEmail').value.trim()
+            };
+            
+            const password = document.getElementById('profilePassword').value.trim();
+            if (password) {
+                updateData.password = password;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/users/${userId}/update`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updateData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Update localStorage
+                    localStorage.setItem('username', updateData.username);
+                    localStorage.setItem('userEmail', updateData.email);
+                    
+                    // Update UI
+                    document.getElementById('customer-username').textContent = updateData.username;
+                    document.getElementById('welcome-username').textContent = updateData.username;
+                    
+                    showAlert('Profile updated successfully', 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('profileModal')).hide();
+                } else {
+                    showAlert(data.message, 'danger');
+                }
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                showAlert('Error updating profile', 'danger');
+            }
+        }
+
+        // Show profile modal
+        function showProfile() {
+            new bootstrap.Modal(document.getElementById('profileModal')).show();
+        }
+
+        // Show orders modal
+        function showOrders() {
+            new bootstrap.Modal(document.getElementById('ordersModal')).show();
+            loadOrders();
+        }
+
+        // Load customer orders
+        async function loadOrders() {
+            const userId = localStorage.getItem('userId');
+            const tbody = document.getElementById('orders-table-body');
+            
+            if (!userId) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center">Please login first</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center">Loading orders...</td></tr>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/orders/user/${userId}`);
+                const data = await response.json();
+                
+                tbody.innerHTML = '';
+                
+                if (data.success && data.orders && data.orders.length > 0) {
+                    data.orders.forEach(order => {
+                        const row = document.createElement('tr');
+                        const statusBadge = getOrderStatusBadge(order.status);
+                        row.innerHTML = `
+                            <td>#${order.orderId}</td>
+                            <td>${new Date(order.orderDate).toLocaleDateString()}</td>
+                            <td>₹${parseFloat(order.totalAmount).toFixed(2)}</td>
+                            <td>${statusBadge}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center">No orders found</td></tr>';
+                }
+            } catch (error) {
+                console.error('Error loading orders:', error);
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Error loading orders. Please try again.</td></tr>';
+            }
+        }
+
+        // Get order status badge with proper styling
+        function getOrderStatusBadge(status) {
+            const statusLower = status.toLowerCase();
+            
+            if (statusLower === 'pending') {
+                return `<span class="badge bg-warning">${status}</span>`;
+            } else if (statusLower === 'shipped') {
+                return `<span class="badge bg-primary">${status}</span>`;
+            } else if (statusLower === 'delivered') {
+                return `<span class="badge bg-success">${status}</span>`;
+            } else if (statusLower === 'cancelled') {
+                return `<span class="badge bg-danger">${status}</span>`;
+            } else {
+                return `<span class="badge bg-secondary">${status}</span>`;
+            }
+        }
+
+
+
+
+
+        // View order details
+        function viewOrderDetails(orderId) {
+            alert(`Order #${orderId} details - This can be expanded to show more details from the orders table`);
+        }
+
+
+
+        // Logout
+        function logout(e) {
+            console.log('Logout function called');
+            if (e) e.preventDefault();
+            if (confirm('Are you sure you want to logout?')) {
+                console.log('Clearing localStorage and redirecting...');
+                localStorage.clear();
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Show alert
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById('main-cart-alerts');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type} alert-dismissible fade show`;
+            alert.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            alertContainer.appendChild(alert);
+            
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.remove();
+                }
+            }, 5000);
+        }
+    </script>
+
+</body>
+</html>

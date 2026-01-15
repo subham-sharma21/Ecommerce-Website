@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Summary - EchoCart</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Header / Sticky Navbar -->
+    <header class="sticky-top">
+        <nav class="navbar navbar-expand-lg">
+            <div class="container">
+                <a class="navbar-brand" href="index.html">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle; margin-right:8px;">
+                        <rect width="24" height="24" fill="none"/>
+                        <path d="M7 18c-1.104 0-2 .896-2 2s.896 2 2 2 2-.896 2-2-.896-2-2-2zm10 0c-1.104 0-2 .896-2 2s.896 2 2 2 2-.896 2-2-.896-2-2-2zM7.16 15l.94-2h7.8l.94 2H7.16zM6.16 13l-1.1-2.32A1 1 0 0 1 6 9h12a1 1 0 0 1 .94 1.32L17.84 13H6.16zM6 7V5a1 1 0 0 1 1-1h2V2h6v2h2a1 1 0 0 1 1 1v2H6z" fill="#222"/>
+                    </svg>
+                    EchoCart
+                </a>
+                <div class="navbar-nav ms-auto">
+                    <a class="nav-link" href="javascript:history.back()">
+                        <i class="bi bi-arrow-left me-1"></i>Back to Shopping
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container py-4">
+        <div class="row">
+            <!-- Order Summary -->
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="mb-0"><i class="bi bi-cart-check me-2"></i>Order Summary</h4>
+                    </div>
+                    <div class="card-body">
+                        <div id="order-loading" class="text-center py-4">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2">Loading your order...</p>
+                        </div>
+                        
+                        <div id="order-empty" class="text-center py-5" style="display: none;">
+                            <i class="bi bi-cart-x display-1 text-muted mb-3"></i>
+                            <h4 class="text-muted">Your cart is empty</h4>
+                            <p class="text-muted">Add some products to your cart before checkout.</p>
+                            <a href="index.html" class="btn btn-primary">Continue Shopping</a>
+                        </div>
+
+                        <div id="order-items" style="display: none;">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Product</th>
+                                            <th>Quantity</th>
+                                            <th>Price</th>
+                                            <th>Subtotal</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="order-items-body">
+                                        <!-- Order items will be populated here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Checkout Form -->
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-credit-card me-2"></i>Checkout</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="checkout-form">
+                            <div class="mb-3">
+                                <label for="customerName" class="form-label">Full Name</label>
+                                <input type="text" class="form-control" id="customerName" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="customerEmail" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="customerEmail" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="customerPhone" class="form-label">Phone Number</label>
+                                <input type="tel" class="form-control" id="customerPhone" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="shippingAddress" class="form-label">Shipping Address</label>
+                                <textarea class="form-control" id="shippingAddress" rows="3" required></textarea>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="paymentMethod" class="form-label">Payment Method</label>
+                                <select class="form-select" id="paymentMethod" required>
+                                    <option value="">Select Payment Method</option>
+                                    <option value="CREDIT_CARD">Credit Card</option>
+                                    <option value="DEBIT_CARD">Debit Card</option>
+                                    <option value="UPI">UPI</option>
+                                    <option value="COD">Cash on Delivery</option>
+                                </select>
+                            </div>
+
+                            <div id="card-details" class="mb-3" style="display: none;">
+                                <div class="row">
+                                    <div class="col-12 mb-2">
+                                        <label for="cardNumber" class="form-label">Card Number</label>
+                                        <input type="text" class="form-control" id="cardNumber" placeholder="1234 5678 9012 3456">
+                                    </div>
+                                    <div class="col-6 mb-2">
+                                        <label for="expiryDate" class="form-label">Expiry</label>
+                                        <input type="text" class="form-control" id="expiryDate" placeholder="MM/YY">
+                                    </div>
+                                    <div class="col-6 mb-2">
+                                        <label for="cvv" class="form-label">CVV</label>
+                                        <input type="text" class="form-control" id="cvv" placeholder="123">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="border-top pt-3 mb-3">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Subtotal:</span>
+                                    <span id="order-subtotal">₹0.00</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Shipping:</span>
+                                    <span id="order-shipping">₹50.00</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Tax:</span>
+                                    <span id="order-tax">₹0.00</span>
+                                </div>
+                                <hr>
+                                <div class="d-flex justify-content-between fw-bold fs-5">
+                                    <span>Total:</span>
+                                    <span id="order-total" class="text-success">₹0.00</span>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-success w-100" id="place-order-btn">
+                                <i class="bi bi-check-circle me-2"></i>Place Order
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Success Modal -->
+    <div class="modal fade" id="successModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center py-5">
+                    <i class="bi bi-check-circle-fill text-success display-1 mb-3"></i>
+                    <h3 class="text-success mb-3">Order Placed Successfully!</h3>
+                    <p class="text-muted mb-4">Thank you for your order. You will receive a confirmation email shortly.</p>
+                    <div class="mb-4">
+                        <strong>Order ID: <span id="order-id-display" class="text-primary">#12345</span></strong>
+                    </div>
+                    <div class="d-flex gap-2 justify-content-center">
+                        <a href="index.html" class="btn btn-outline-primary">Continue Shopping</a>
+                        <a href="customer.html" class="btn btn-primary">View Dashboard</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom JavaScript -->
+    <script>
+        const API_BASE = 'http://localhost:8081/api';
+        let orderItems = [];
+        let orderTotal = 0;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in
+            const userId = localStorage.getItem('userId');
+            const username = localStorage.getItem('username');
+            const userEmail = localStorage.getItem('userEmail');
+
+            if (!userId) {
+                alert('Please login to continue with checkout');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Pre-fill customer information
+            if (username) document.getElementById('customerName').value = username;
+            if (userEmail) document.getElementById('customerEmail').value = userEmail;
+
+            // Load order items from cart
+            loadOrderItems();
+
+            // Setup form submission
+            document.getElementById('checkout-form').addEventListener('submit', handleCheckout);
+
+            // Setup payment method change
+            document.getElementById('paymentMethod').addEventListener('change', handlePaymentMethodChange);
+        });
+
+        // Load order items from cart
+        async function loadOrderItems() {
+            const userId = localStorage.getItem('userId');
+            
+            try {
+                const response = await fetch(`${API_BASE}/cart/user/${userId}`);
+                const data = await response.json();
+                
+                if (data.success && data.cartItems && data.cartItems.length > 0) {
+                    // Get product details for each cart item
+                    const itemsWithDetails = await Promise.all(data.cartItems.map(async (item) => {
+                        try {
+                            const productResponse = await fetch(`${API_BASE}/products/${item.productId}`);
+                            const productData = await productResponse.json();
+                            
+                            if (productData.success) {
+                                return {
+                                    cartId: item.cartId,
+                                    productId: item.productId,
+                                    quantity: item.quantity,
+                                    name: productData.product.name,
+                                    price: productData.product.price,
+                                    imageUrl: productData.product.imageUrl
+                                };
+                            }
+                        } catch (error) {
+                            console.error('Error fetching product details:', error);
+                        }
+                        
+                        return {
+                            cartId: item.cartId,
+                            productId: item.productId,
+                            quantity: item.quantity,
+                            name: `Product ${item.productId}`,
+                            price: 100,
+                            imageUrl: 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?q=80&w=400&auto=format&fit=crop'
+                        };
+                    }));
+                    
+                    orderItems = itemsWithDetails;
+                    displayOrderItems();
+                } else {
+                    showEmptyOrder();
+                }
+            } catch (error) {
+                console.error('Error loading cart:', error);
+                // Fallback to localStorage cart
+                const localCart = JSON.parse(localStorage.getItem('cart')) || [];
+                if (localCart.length > 0) {
+                    orderItems = localCart;
+                    displayOrderItems();
+                } else {
+                    showEmptyOrder();
+                }
+            }
+        }
+
+        // Display order items
+        function displayOrderItems() {
+            document.getElementById('order-loading').style.display = 'none';
+            document.getElementById('order-items').style.display = 'block';
+            
+            const tbody = document.getElementById('order-items-body');
+            tbody.innerHTML = '';
+            
+            let subtotal = 0;
+            
+            orderItems.forEach(item => {
+                const itemSubtotal = item.price * item.quantity;
+                subtotal += itemSubtotal;
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <img src="${item.imageUrl}" alt="${item.name}" class="me-3" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+                            <div>
+                                <h6 class="mb-0">${item.name}</h6>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${item.quantity}</td>
+                    <td>₹${typeof item.price === 'number' ? item.price.toLocaleString() : item.price}</td>
+                    <td class="fw-bold">₹${itemSubtotal.toLocaleString()}</td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            // Calculate totals
+            const shipping = 50;
+            const tax = Math.round(subtotal * 0.18); // 18% GST
+            const total = subtotal + shipping + tax;
+            
+            document.getElementById('order-subtotal').textContent = `₹${subtotal.toLocaleString()}`;
+            document.getElementById('order-shipping').textContent = `₹${shipping.toLocaleString()}`;
+            document.getElementById('order-tax').textContent = `₹${tax.toLocaleString()}`;
+            document.getElementById('order-total').textContent = `₹${total.toLocaleString()}`;
+            
+            orderTotal = total;
+        }
+
+        // Show empty order
+        function showEmptyOrder() {
+            document.getElementById('order-loading').style.display = 'none';
+            document.getElementById('order-empty').style.display = 'block';
+        }
+
+        // Handle payment method change
+        function handlePaymentMethodChange(e) {
+            const cardDetails = document.getElementById('card-details');
+            const paymentMethod = e.target.value;
+            
+            if (paymentMethod === 'CREDIT_CARD' || paymentMethod === 'DEBIT_CARD') {
+                cardDetails.style.display = 'block';
+                // Make card fields required
+                document.getElementById('cardNumber').required = true;
+                document.getElementById('expiryDate').required = true;
+                document.getElementById('cvv').required = true;
+            } else {
+                cardDetails.style.display = 'none';
+                // Remove required from card fields
+                document.getElementById('cardNumber').required = false;
+                document.getElementById('expiryDate').required = false;
+                document.getElementById('cvv').required = false;
+            }
+        }
+
+        // Handle checkout
+        async function handleCheckout(e) {
+            e.preventDefault();
+            
+            if (orderItems.length === 0) {
+                alert('Your cart is empty');
+                return;
+            }
+            
+            const submitBtn = document.getElementById('place-order-btn');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+            submitBtn.disabled = true;
+            
+            try {
+                const userId = localStorage.getItem('userId');
+                
+                // Create order data
+                const orderData = {
+                    userId: parseInt(userId),
+                    totalAmount: orderTotal,
+                    shippingAddress: document.getElementById('shippingAddress').value.trim(),
+                    paymentMethod: document.getElementById('paymentMethod').value,
+                    status: 'PENDING'
+                };
+                
+                // Create order
+                const response = await fetch(`${API_BASE}/orders`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(orderData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Clear cart after successful order
+                    await clearCart();
+                    
+                    // Show success modal
+                    document.getElementById('order-id-display').textContent = `#${data.order.orderId}`;
+                    new bootstrap.Modal(document.getElementById('successModal')).show();
+                } else {
+                    throw new Error(data.message || 'Failed to place order');
+                }
+                
+            } catch (error) {
+                console.error('Error placing order:', error);
+                alert('Failed to place order: ' + error.message);
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        }
+
+        // Clear cart after successful order
+        async function clearCart() {
+            const userId = localStorage.getItem('userId');
+            
+            try {
+                // Get all cart items and remove them
+                const cartResponse = await fetch(`${API_BASE}/cart/user/${userId}`);
+                const cartData = await cartResponse.json();
+                
+                if (cartData.success && cartData.cartItems) {
+                    // Remove each item from backend
+                    for (const item of cartData.cartItems) {
+                        await fetch(`${API_BASE}/cart/${item.cartId}`, {
+                            method: 'DELETE'
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Error clearing cart:', error);
+            }
+            
+            // Clear local storage cart
+            localStorage.removeItem('cart');
+        }
+    </script>
+
+</body>
+</html>

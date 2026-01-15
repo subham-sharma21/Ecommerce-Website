@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EchoCart</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+    .particle {
+        position: fixed;
+        width: 8px;
+        height: 8px;
+        background: radial-gradient(circle, #ffd700 0%, #ffed4e 50%, #fff59d 100%);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 10000;
+        box-shadow: 0 0 6px #ffd700;
+    }
+    @keyframes particleBurst {
+        0% { 
+            transform: translate(0, 0) scale(1);
+            opacity: 1;
+        }
+        100% { 
+            transform: translate(var(--dx), var(--dy)) scale(0);
+            opacity: 0;
+        }
+    }
+    </style>
+</head>
+<body>
+
+    
+
+    <!-- 
+    ============================================
+    --- LANDING PAGE ---
+    Initially hidden, shown via JS after login.
+    Directly visible on page load.
+    ============================================
+    -->
+    
+    <div id="landing-page">
+
+        <!-- Header / Sticky Navbar -->
+        <header class="sticky-top">
+            <nav class="navbar navbar-expand-lg">
+                <div class="container">
+                    <a class="navbar-brand" href="#">
+                        <!-- Shopping Cart SVG Logo -->
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle; margin-right:8px;">
+                            <rect width="24" height="24" fill="none"/>
+                            <path d="M7 18c-1.104 0-2 .896-2 2s.896 2 2 2 2-.896 2-2-.896-2-2-2zm10 0c-1.104 0-2 .896-2 2s.896 2 2 2 2-.896 2-2-.896-2-2-2zM7.16 15l.94-2h7.8l.94 2H7.16zM6.16 13l-1.1-2.32A1 1 0 0 1 6 9h12a1 1 0 0 1 .94 1.32L17.84 13H6.16zM6 7V5a1 1 0 0 1 1-1h2V2h6v2h2a1 1 0 0 1 1 1v2H6z" fill="#222"/>
+                        </svg>
+                        EchoCart
+                    </a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                            <li class="nav-item"><a class="nav-link active" aria-current="page" href="#">Home</a></li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Categories
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#electronics">Electronics</a></li>
+                                    <li><a class="dropdown-item" href="#apparel">Fashion</a></li>
+                                    <li><a class="dropdown-item" href="#home-kitchen">Home & Kitchen</a></li>
+                                    <li><a class="dropdown-item" href="#books">Books</a></li>
+                                    <li><a class="dropdown-item" href="#sports">Sports & Fitness</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item"><a class="nav-link" href="#">About</a></li>
+                        </ul>
+                        <form class="d-flex me-3" role="search">
+                            <input id="search-bar" class="form-control me-2" type="search" placeholder="Search for products..." aria-label="Search">
+                        </form>
+                        <ul class="navbar-nav mb-2 mb-lg-0">
+                            <li class="nav-item">
+                                <a class="nav-link position-relative" href="#" id="cart-icon" data-bs-toggle="modal" data-bs-target="#cartModal">
+                                    <i class="bi bi-cart-fill me-1"></i>Cart
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="cart-badge" style="display: none;">
+                                        0
+                                    </span>
+                                </a>
+                            </li>
+                            <li class="nav-item" id="login-nav-item">
+                                <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#loginModal">Login</a>
+                            </li>
+                            <li class="nav-item dropdown d-none" id="user-nav-item">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-person-circle me-1"></i> <span id="user-display-name">User</span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="#" id="dashboard-link">Dashboard</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="showProfile()">Profile</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="#" id="logout-button" onclick="logout(event)">Logout</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </header>
+
+
+
+        <!-- Main Content -->
+        <main>
+            <!-- Hero Carousel -->
+            <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-indicators">
+                    <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                    <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+                    <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+                </div>
+                <div class="carousel-inner">
+                    <div class="carousel-item active" style="background-image: url('https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1260&q=80')">
+                        <!-- Fashion & Clothing -->
+                    </div>
+                    <div class="carousel-item" style="background-image: url('https://images.unsplash.com/photo-1472851294608-062f824d29cc?auto=format&fit=crop&w=1260&q=80')">
+                        <!-- Shopping & Lifestyle -->
+                    </div>
+                    <div class="carousel-item" style="background-image: url('https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=1260&q=80')">
+                        <!-- Footwear Collection -->
+                    </div>
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            </div>
+
+            <!-- Features Section -->
+            <section id="features" class="py-5">
+                <div class="container text-center">
+                    <div class="row g-4">
+                        <div class="col-md-4 fade-in">
+                            <i class="bi bi-truck feature-icon mb-3"></i>
+                            <h3>Fast Shipping</h3>
+                            <p class="text-muted">Get your orders delivered to your doorstep in record time with our premium courier partners.</p>
+                        </div>
+                        <div class="col-md-4 fade-in">
+                            <i class="bi bi-patch-check-fill feature-icon mb-3"></i>
+                            <h3>Quality Guaranteed</h3>
+                            <p class="text-muted">We source the best products, ensuring every item meets our high-quality standards.</p>
+                        </div>
+                        <div class="col-md-4 fade-in">
+                            <i class="bi bi-headset feature-icon mb-3"></i>
+                            <h3>24/7 Support</h3>
+                            <p class="text-muted">Our dedicated support team is always here to help you with any questions, day or night.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Product Section -->
+            <section id="electronics" class="product-section">
+                <div class="container">
+                    <!-- Category: Electronics -->
+                    <div class="text-center mb-5">
+                        <h2>Electronics</h2>
+                        <p class="lead text-muted typewriter">The latest and greatest in modern technology.</p>
+                    </div>
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-3" id="product-list-electronics">
+                        <!-- Products will be loaded from backend -->
+                    </div>
+                </div>
+            </section>
+
+            <section id="apparel" class="product-section" style="background-color: var(--secondary-bg);">
+                <div class="container">
+                    <div class="text-center mb-4">
+                        <h2>Fashion</h2>
+                        <p class="lead text-muted typewriter">Trendy styles for every occasion</p>
+                    </div>
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-3" id="product-list-apparel">
+                        <!-- Products will be loaded from backend -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Home & Kitchen Section -->
+            <section id="home-kitchen" class="product-section">
+                <div class="container">
+                    <div class="text-center mb-4">
+                        <h2>Home & Kitchen</h2>
+                        <p class="lead text-muted typewriter">Essential items for your home</p>
+                    </div>
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-3">
+                        <!-- Products will be loaded from backend -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Books Section -->
+            <section id="books" class="product-section" style="background-color: var(--secondary-bg);">
+                <div class="container">
+                    <div class="text-center mb-4">
+                        <h2>Books</h2>
+                        <p class="lead text-muted typewriter">Knowledge and entertainment for all</p>
+                    </div>
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-3">
+                        <!-- Products will be loaded from backend -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sports & Fitness Section -->
+            <section id="sports" class="product-section">
+                <div class="container">
+                    <div class="text-center mb-4">
+                        <h2>Sports & Fitness</h2>
+                        <p class="lead text-muted typewriter">Stay active and healthy</p>
+                    </div>
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-3">
+                        <!-- Products will be loaded from backend -->
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="modern-footer">
+            <div class="container">
+                <div class="row gy-4">
+                    <div class="col-lg-4 col-md-6">
+                        <div class="footer-brand">
+                            <h4 class="mb-3">EchoCart</h4>
+                            <p class="footer-desc">Your trusted partner for premium products and exceptional shopping experience.</p>
+                            <div class="social-links">
+                                <a href="#" class="social-link"><i class="bi bi-facebook"></i></a>
+                                <a href="#" class="social-link"><i class="bi bi-twitter-x"></i></a>
+                                <a href="#" class="social-link"><i class="bi bi-instagram"></i></a>
+                                <a href="#" class="social-link"><i class="bi bi-linkedin"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-6">
+                        <h6 class="footer-title">Shop</h6>
+                        <ul class="footer-links">
+                            <li><a href="#electronics">Electronics</a></li>
+                            <li><a href="#apparel">Fashion</a></li>
+                            <li><a href="#home-kitchen">Home & Kitchen</a></li>
+                            <li><a href="#books">Books</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-lg-2 col-md-6">
+                        <h6 class="footer-title">Support</h6>
+                        <ul class="footer-links">
+                            <li><a href="#">Help Center</a></li>
+                            <li><a href="#">Shipping Info</a></li>
+                            <li><a href="#">Returns</a></li>
+                            <li><a href="#">Contact Us</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-lg-4 col-md-6">
+                        <h6 class="footer-title">Stay Updated</h6>
+                        <p class="footer-desc mb-3">Subscribe to get special offers and updates.</p>
+                        <div class="newsletter">
+                            <input type="email" class="newsletter-input" placeholder="Enter your email">
+                            <button class="newsletter-btn"><i class="bi bi-arrow-right"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <hr class="footer-divider">
+                <div class="footer-bottom">
+                    <p>&copy; 2024 EchoCart. All rights reserved.</p>
+                    <div class="footer-bottom-links">
+                        <a href="#">Privacy Policy</a>
+                        <a href="#">Terms of Service</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+        <!-- Login Modal -->
+        <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="loginModalLabel">Login to EchoCart</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="login-form">
+                            <div id="login-error" class="alert alert-danger d-none" role="alert"></div>
+                            <div class="mb-3">
+                                <label for="loginEmail" class="form-label">Email address</label>
+                                <input type="email" class="form-control" id="loginEmail" required placeholder="user@example.com">
+                            </div>
+                            <div class="mb-3">
+                                <label for="loginPassword" class="form-label">Password</label>
+                                <input type="password" class="form-control" id="loginPassword" required placeholder="password123">
+                            </div>
+                            <div class="d-flex justify-content-end mb-3">
+                                <a href="#" class="form-text-link" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal" data-bs-dismiss="modal">Forgot password?</a>
+                            </div>
+                            <button type="submit" class="btn btn-custom w-100">Login</button>
+                        </form>
+                    </div>
+                    <div class="modal-footer justify-content-center">
+                        <p class="text-muted small mb-0">Don't have an account? <a href="#" class="form-text-link" data-bs-toggle="modal" data-bs-target="#registerModal" data-bs-dismiss="modal">Register here</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Register Modal -->
+        <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="registerModalLabel">Create an Account</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Account Type Tabs -->
+                        <ul class="nav nav-tabs mb-3" id="registerTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active fw-bold text-dark" id="customer-register-tab" data-bs-toggle="tab" data-bs-target="#customer-register" type="button" role="tab" style="color: #000 !important;">Customer Account</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link fw-bold text-dark" id="admin-register-tab" data-bs-toggle="tab" data-bs-target="#admin-register" type="button" role="tab" style="color: #000 !important;">Admin Account</button>
+                            </li>
+                        </ul>
+                        
+                        <div class="tab-content" id="registerTabContent">
+                            <!-- Customer Registration -->
+                            <div class="tab-pane fade show active" id="customer-register" role="tabpanel">
+                                <form id="customer-register-form">
+                                    <div id="customer-register-success" class="alert alert-success d-none" role="alert"></div>
+                                    <div class="mb-3">
+                                        <label for="customerRegisterName" class="form-label">Full Name</label>
+                                        <input type="text" class="form-control" id="customerRegisterName" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="customerRegisterEmail" class="form-label">Email address</label>
+                                        <input type="email" class="form-control" id="customerRegisterEmail" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="customerRegisterPassword" class="form-label">Password</label>
+                                        <input type="password" class="form-control" id="customerRegisterPassword" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-custom w-100">Create Customer Account</button>
+                                </form>
+                            </div>
+                            
+                            <!-- Admin Registration -->
+                            <div class="tab-pane fade" id="admin-register" role="tabpanel">
+                                <form id="admin-register-form">
+                                    <div id="admin-register-success" class="alert alert-success d-none" role="alert"></div>
+                                    <div class="mb-3">
+                                        <label for="adminRegisterName" class="form-label">Full Name</label>
+                                        <input type="text" class="form-control" id="adminRegisterName" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="adminRegisterEmail" class="form-label">Email address</label>
+                                        <input type="email" class="form-control" id="adminRegisterEmail" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="adminRegisterPassword" class="form-label">Password</label>
+                                        <input type="password" class="form-control" id="adminRegisterPassword" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="adminRegisterKey" class="form-label">Admin Security Key</label>
+                                        <input type="password" class="form-control" id="adminRegisterKey" required placeholder="Enter admin security key">
+                                        <div class="form-text">Contact system administrator for the security key</div>
+                                    </div>
+                                    <button type="submit" class="btn btn-custom w-100">Create Admin Account</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer justify-content-center">
+                        <p class="text-muted small mb-0">Already have an account? <a href="#" class="form-text-link" data-bs-toggle="modal" data-bs-target="#loginModal" data-bs-dismiss="modal">Login here</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Forgot Password Modal -->
+        <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="forgotPasswordModalLabel">Reset Password</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="forgot-password-form">
+                            <div id="forgot-success" class="alert alert-info d-none" role="alert">
+                                If an account with that email exists, a password reset link has been sent.
+                            </div>
+                            <p class="text-muted">Enter your email address and we will send you a link to reset your password.</p>
+                            <div class="mb-3">
+                                <label for="forgotEmail" class="form-label">Email address</label>
+                                <input type="email" class="form-control" id="forgotEmail" required>
+                            </div>
+                            <button type="submit" class="btn btn-custom w-100">Send Reset Link</button>
+                        </form>
+                    </div>
+                    <div class="modal-footer justify-content-center">
+                        <a href="#" class="form-text-link" data-bs-toggle="modal" data-bs-target="#loginModal" data-bs-dismiss="modal">Back to Login</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Alerts -->
+    <div class="position-fixed" style="bottom: 20px; right: 20px; z-index: 1060; max-width: 300px;">
+        <div id="main-cart-alerts"></div>
+    </div>
+
+    <!-- Cart Modal -->
+    <div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cartModalLabel">
+                        <i class="bi bi-cart-fill me-2"></i>Shopping Cart
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="cart-alerts"></div>
+                    <div id="cart-empty" class="text-center py-5" style="display: none;">
+                        <i class="bi bi-cart-x display-1 text-muted mb-3"></i>
+                        <h4 class="text-muted">Your cart is empty</h4>
+                        <p class="text-muted">Add some products to get started!</p>
+                    </div>
+                    <div id="cart-items">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Code</th>
+                                        <th>Qty</th>
+                                        <th>Price</th>
+                                        <th>Subtotal</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="cart-table-body">
+                                    <!-- Cart items will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" id="cart-footer">
+                    <div class="w-100">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="mb-0">Total: <span id="cart-total" class="text-success">₹0.00</span></h5>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-outline-danger" id="clear-cart-btn">
+                                <i class="bi bi-trash me-1"></i>Clear Cart
+                            </button>
+                            <button type="button" class="btn btn-custom flex-fill" id="checkout-btn">
+                                <i class="bi bi-credit-card me-1"></i>Checkout
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+    <!-- Custom JavaScript -->
+    <script src="/js/main.js" defer></script>
+    <script src="/js/cart.js" defer></script>
+    <script src="/js/product.js" defer></script>
+    
+    <script>
+    function createParticleBurst(x, y) {
+        for (let i = 0; i < 15; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            
+            const angle = (i * 24) * Math.PI / 180;
+            const distance = 60 + Math.random() * 40;
+            const duration = 0.8;
+            
+            particle.style.left = (x - 4) + 'px';
+            particle.style.top = (y - 4) + 'px';
+            particle.style.setProperty('--dx', Math.cos(angle) * distance + 'px');
+            particle.style.setProperty('--dy', Math.sin(angle) * distance + 'px');
+            particle.style.animation = `particleBurst ${duration}s ease-out forwards`;
+            
+            document.body.appendChild(particle);
+            setTimeout(() => particle.remove(), duration * 1000);
+        }
+    }
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        // Check if user is already logged in
+        checkAuthState();
+        
+        // Setup logout functionality
+        const logoutButton = document.getElementById('logout-button');
+        if (logoutButton) {
+            logoutButton.addEventListener('click', logout);
+        }
+        
+        // Setup dashboard link
+        const dashboardLink = document.getElementById('dashboard-link');
+        if (dashboardLink) {
+            dashboardLink.addEventListener('click', goToDashboard);
+        }
+        
+        setTimeout(() => {
+            document.querySelectorAll('#registerTabs button').forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    const rect = e.target.getBoundingClientRect();
+                    const x = rect.left + rect.width / 2;
+                    const y = rect.top + rect.height / 2;
+                    createParticleBurst(x, y);
+                });
+            });
+        }, 500);
+    });
+    
+    // Check authentication state
+    function checkAuthState() {
+        const userId = localStorage.getItem('userId');
+        const userRole = localStorage.getItem('userMode');
+        const username = localStorage.getItem('username');
+        
+        if (userId && userRole && username) {
+            // User is logged in
+            document.getElementById('login-nav-item').classList.add('d-none');
+            document.getElementById('user-nav-item').classList.remove('d-none');
+            document.getElementById('user-display-name').textContent = username;
+            
+            // Update dashboard link based on role
+            const dashboardLink = document.getElementById('dashboard-link');
+            if (userRole === 'admin') {
+                dashboardLink.textContent = 'Admin Dashboard';
+                dashboardLink.href = 'admin.html';
+            } else {
+                dashboardLink.textContent = 'Customer Dashboard';
+                dashboardLink.href = 'customer.html';
+            }
+        } else {
+            // User is not logged in
+            document.getElementById('login-nav-item').classList.remove('d-none');
+            document.getElementById('user-nav-item').classList.add('d-none');
+        }
+    }
+    
+    // Go to appropriate dashboard
+    function goToDashboard(e) {
+        e.preventDefault();
+        const userRole = localStorage.getItem('userMode');
+        
+        if (userRole === 'admin') {
+            window.location.href = 'admin.html';
+        } else if (userRole === 'customer') {
+            window.location.href = 'customer.html';
+        }
+    }
+    
+    // Logout function
+    function logout(e) {
+        console.log('Logout function called');
+        if (e) e.preventDefault();
+        localStorage.clear();
+        console.log('Cleared localStorage, redirecting...');
+        // Force reload to reset the page state
+        window.location.href = 'index.html';
+    }
+    
+    // Show profile function (placeholder)
+    function showProfile() {
+        alert('Profile functionality available in dashboard');
+    }
+    </script>
+
+</body>
+</html>
